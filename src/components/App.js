@@ -1,22 +1,29 @@
 import React, { useEffect } from "react";
 import Content from "./Content";
 import { Header } from "./Header";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { Signin } from "./Signin";
 import { Signup } from "./Signup";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { useState } from "react";
 
+
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const navigate = useNavigate();
+  
+
   const handleLogin = () => {
     setLoggedIn(true);
   }
+
   function handleExit() {
     localStorage.clear()
     setLoggedIn(false)
   }
+
+  
+
   return (
     <>
       <Routes>

@@ -9,8 +9,7 @@ export const register = (email, password) => {
       },
       body: JSON.stringify({ email, password }),
     })
-      // .then(res => res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`));
-      .then(res => res)
+      .then(res => res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`));
   };
 
 export const authorize = (email, password) => {
@@ -33,6 +32,5 @@ export const getContent = (token) => {
         'Authorization': `Bearer ${token}`,
       },
     })
-      .then(res => res.json())
-      .then(data => data);
+      .then(res => res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`));
   };

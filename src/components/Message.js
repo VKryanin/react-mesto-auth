@@ -14,27 +14,16 @@ export function Message({ status: status, styles: style, error: error }) {
     if (!isOpen) {
         return null;
     }
-    if (status) {
-        return (
-            <div style={style} className='message'>
-                <div className="message__popup">
-                    <img src={succsess} alt="Успех" />
-                    <p>Вы успешно зарегистрировались!</p>
-                    <img onClick={handleClose} src={close} alt="close" />
-                </div>
-            </div>
-        )
-    } else {
         return (
             <div style={style} className="message">
-                <div className='message__bg'></div>
-                <div className="message__popup">
-                    <img src={fail} alt="Не удачно" />
-                    <p>{error}</p>
-                    <img onClick={handleClose} className='message__close' src={close} alt="close" />
-                </div>
+              <div className="message__popup">
+                <img
+                  src={status ? succsess : fail}
+                  alt={status ? "Успех" : "Не удачно"}
+                />
+                <p>{status ? "Вы успешно зарегистрировались!" : error}</p>
+                <img className='message__close' onClick={handleClose} src={close} alt="close" />
+              </div>
             </div>
-        )
-    }
-
-}
+          ); 
+    } 

@@ -8,6 +8,7 @@ export function Signin({ handleLogin }) {
         email: '',
         password: ''
     });
+
     const [status, setStatus] = useState('')
     const [style, setStyle] = useState({ display: 'none' })
     const [errorMessage, setErrorMessage] = useState('');
@@ -39,18 +40,13 @@ export function Signin({ handleLogin }) {
             [name]: value
         });
     }
-
     const handleSubmit = (e) => {
         e.preventDefault();
-
         if (!formValue.password || !formValue.email) {
             setErrorMessage('Both fields are required');
             return;
         }
-
         const { email, password } = formValue;
-
-
         mestoAuth.authorize(email, password)
             .then(data => {
                 if (data.token) {
@@ -70,7 +66,6 @@ export function Signin({ handleLogin }) {
                 });
             });
     }
-
     return (
         <div onSubmit={handleSubmit} className="authForm__container">
             <Message status={status} styles={style} error={errorMessage} />
@@ -86,4 +81,4 @@ export function Signin({ handleLogin }) {
             </form>
         </div>
     )
-}
+} 
