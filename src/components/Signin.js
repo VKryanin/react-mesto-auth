@@ -4,73 +4,33 @@ import { useState, useEffect } from "react";
 import { Message } from "./Message";
 
 export function Signin({ handleLogin }) {
-    const [formValue, setFormValue] = useState({
-        email: '',
-        password: ''
-    });
+    const { name, value } = e.target; 
+    setFormValue({ 
+        ...formValue, 
+        [name]: value 
+    }); 
 
-    const [status, setStatus] = useState('')
-    const [style, setStyle] = useState({ display: 'none' })
-    const [errorMessage, setErrorMessage] = useState('');
-    const navigate = useNavigate();
-    const location = useLocation();
-
-    const tokenCheck = () => {
-        const jwt = localStorage.getItem('jwt');
-
-        if (jwt) {
-            mestoAuth.getContent(jwt)
-                .then(user => {
-                    const url = location.state?.backUrl || '/content';
-                    handleLogin(user)
-                    navigate(url)
-                })
-                .catch(err => console.log(err))
-        }
-    }
-
-    useEffect(() => {
-        tokenCheck()
-    }, []);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
+    function handleSubmit(e) {
+        e.preventDefault();
+        onLogin({login, password});
         setFormValue({
-            ...formValue,
-            [name]: value
+            email: '',
+            password: '',
         });
     }
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (!formValue.password || !formValue.email) {
-            setErrorMessage('Both fields are required');
-            return;
-        }
-        const { email, password } = formValue;
-        mestoAuth.authorize(email, password)
-            .then(data => {
-                if (data.token) {
-                    localStorage.setItem('jwt', data.token);
-                    localStorage.setItem('user', email);
-                    handleLogin({ email, password });
-                    const url = location.state?.backUrl || '/content';
-                    navigate(url);
-                    console.log({ email, password });
-                }
-            })
-            .catch(err => {
-                setStatus(false);
-                setErrorMessage('Не корректный Email или пароль');
-                setStyle({
-                    display: 'block'
-                });
-            });
-    }
+
+    const handleChange = (e) => { 
+        const { name, value } = e.target; 
+        setFormValue({ 
+            ...formValue, 
+            [name]: value 
+        }); 
+    } 
+
     return (
-        <div onSubmit={handleSubmit} className="authForm__container">
-            <Message status={status} styles={style} error={errorMessage} />
+        <div  className="authForm__container">
             <h2 className="authForm__title">Вход</h2>
-            <form className="authForm__form">
+            <form className="authForm__form" onSubmit={handleSubmit}>
                 <input id="email" required name="email" type="email" autoComplete="login" value={formValue.email} placeholder="Email"
                     onChange={handleChange} />
                 <input id="password" required name="password" type="password" autoComplete="current-password"

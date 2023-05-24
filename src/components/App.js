@@ -1,11 +1,19 @@
-import React, { useEffect } from "react";
-import Content from "./Content";
+import React, { useState, useEffect } from "react";
 import { Header } from "./Header";
-import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { Main } from "./Main";
+import { ImagePopup } from "./ImagePopup";
+import { PopupEditAvatar } from "./PopupEditAvatar";
+import { PopupEditProfile } from "./PopupEditProfile";
+import { PopupAddCard } from "./PopupAddCard";
+import { CurrentUserContext } from '../contexts/CurrentUserContext';
+import { Footer } from "./Footer";
+import { api } from "../utils/Api";
+import { Routes, Route, Navigate, useNavigate, Link } from "react-router-dom";
 import { Signin } from "./Signin";
 import { Signup } from "./Signup";
 import { ProtectedRoute } from "./ProtectedRoute";
-import { useState } from "react";
+import { InfoTooltip } from "./InfoTooltip";
+import * as mestoAuth  from '../utils/MestoAuth'
 
 
 function App() {
@@ -17,7 +25,13 @@ function App() {
   const [cards, setCards] = useState([]);
   const [currentUser, setCurrentUser] = useState({});
   const [loggedIn, setLoggedIn] = useState(false);
+  const [waitingLoad, setWaitingLoad] = useState(true);
   const navigate = useNavigate();
+  const [isInfoTooltipPopupOpen, setIsInfoTooltipPopupOpen] = useState(false);
+  const [successAuth, setSuccessAuth] = useState({
+    message: '',
+    selector: '',
+  });
 
   useEffect(() => {
     Promise.all([api.getProfile(), api.getCards()])
@@ -91,8 +105,18 @@ function App() {
     setIsImageOpen(false);
   }
 
-  const handleLogin = () => {
-    setLoggedIn(true);
+  const handleLogin = (inputValues) => {
+    mestoAuth.authorize(inputValues)
+    .then((res) => {
+      localStorage.setItem('jwt', res.token);
+      setLoggedIn(true);
+    })
+    .catch((err) => {
+      setSuccessAuth({
+        message: 'Что-то пошло не так! Попробуйте ещё раз.'
+      });
+      setIsInfoTooltipPopupOpen(true);
+    });
   }
 
   function handleExit() {
@@ -100,28 +124,75 @@ function App() {
     setLoggedIn(false)
   }
 
-
+  const handleRegister = (inputValues) => {
+    mestoAuth.register(inputValues)
+    .then(()=> {
+      setSuccessAuth({
+        message: 'Вы успешно зарегистрировались!'
+      });
+      setIsInfoTooltipPopupOpen(true);
+      navigate('/signin');
+    })
+    .catch((err) => {
+      setSuccessAuth({
+        message: 'Что-то пошло не так! Попробуйте ещё раз.'
+      });
+      setIsInfoTooltipPopupOpen(true);
+    })
+  }
 
   return (
-    <>
+    <CurrentUserContext.Provider value={currentUser}>
+
       <Routes>
-        <Route path="/content" element={<Header handleEvent={handleExit} title={'Выход'} />} />
-        <Route path="/sign-up" element={<Header handleEvent={() => { navigate('/sign-in') }} title={'Войти'} />} />
-        <Route path="/sign-in" element={<Header handleEvent={() => { navigate('/sign-up') }} title={'Регистрация'} />} />
+        <Route path="/" element={<Header />}>
+          <Route index element={
+            <Link to="/signin" className="auth-forms__link" onClick={handleExit}>
+              <p className="auth-forms__email">{currentUser.email}</p>
+              <p className="auth-forms__email">Выйти</p>
+            </Link>
+          } />
+          <Route path="signin" element={
+            <Link to="/signup" className="auth-forms__link">
+              Зарегистрироваться
+            </Link>
+          } />
+          <Route path="signup" element={
+            <Link to="/signin" className="auth-forms__link">
+              Войти
+            </Link>
+          } />
+        </Route>
       </Routes>
+
       <Routes>
-        <Route path="/content" element={<ProtectedRoute element={Content} loggedIn={loggedIn} />} />
-        <Route path="/sign-in" element={
-          <div className="authForm">
-            <Signin handleLogin={handleLogin} />
-          </div>} />
-        <Route path="/sign-up" element={
-          <div className="authForm">
-            <Signup />
-          </div>} />
-        <Route path="/" element={loggedIn ? <Navigate to='/content' /> : <Navigate to='/sign-in' replace />} />
+        <Route path="/" element={!waitingLoad && <ProtectedRoute
+          component={Main}
+          loggedIn={loggedIn}
+          handlers={{
+            onEditProfile: handleEditProfileClick,
+            handleAddCard: handleAddCard,
+            onEditAvatar: handleEditAvatarClick,
+            onCardClick: handleCardClick,
+            onCardLike: handleCardLike,
+            onCardDelete: handleCardDelete
+          }}
+          cards={cards}
+        />}
+        />
+        <Route path="/signin" element={<Signin handleLogin={handleLogin} />} />
+        <Route path="/signup" element={<Signup onRegister={handleRegister} />} />
+        <Route path="*" element={loggedIn ? <Navigate to="/" /> : <Navigate to="/signin" />} />
       </Routes>
-    </>
+      <Footer />
+
+      <PopupEditProfile isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
+      <PopupAddCard isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddCard} />
+      <PopupEditAvatar isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} />
+      <ImagePopup card={selectedCard} onClose={closeAllPopups} />
+      <InfoTooltip isOpen={isInfoTooltipPopupOpen} onClose={closeAllPopups} success={successAuth} />
+
+    </CurrentUserContext.Provider>
   )
 }
 
