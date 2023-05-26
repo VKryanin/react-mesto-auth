@@ -1,12 +1,19 @@
 import React, { useContext } from 'react';
 import { Card } from "./Card";
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
+import { Header } from './Header';
+import { Footer } from './Footer'
 
 
 export function Main(props) {
+    const {
+        email,
+        onSingOut,
+    } = props;
     const userData = useContext(CurrentUserContext);
     return (
         <main>
+            <Header title="Выход" email={email} isOpen={true} onSingOut={onSingOut} />
             <section className="profile">
                 <div className="profile__container">
                     <img
@@ -37,7 +44,7 @@ export function Main(props) {
                     type="button"
                     className="profile__button-add profile__button"
                     title="Добавить фотографию"
-                    onClick={props.onAddPlace} />
+                    onClick={props.onEditAddPhoto} />
             </section>
             <section className="elements">
                 <ul className="elements__list">
@@ -56,6 +63,7 @@ export function Main(props) {
                     )}
                 </ul>
             </section>
+            <Footer />
         </main>
     )
 }

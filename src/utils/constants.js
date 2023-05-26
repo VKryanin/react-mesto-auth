@@ -8,3 +8,7 @@ export const constants = {
     profileAvatarEdit: document.querySelector('.profile__avatar-edit'),
     buttonAddCard: document.querySelector('.profile__button-add')
 }
+
+export const closePopup = (e, onClose) => {
+    if (e.target === e.currentTarget) onClose();
+  }
