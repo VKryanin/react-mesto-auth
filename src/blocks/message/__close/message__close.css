@@ -1,8 +1,0 @@
-.message__close {
-    position: absolute;
-    transform: translate(50%, -50%);
-    top: -24px;
-    right: -24px;
-    width: 32px;
-    cursor: pointer;
-}
